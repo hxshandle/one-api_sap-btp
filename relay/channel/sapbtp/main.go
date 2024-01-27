@@ -14,6 +14,7 @@ func GetToken(apiKey string) string {
 		if time.Now().Before(tokenData.ExpiryTime) {
 			return tokenData.AccessToken
 		}
-
 	}
+	// TODO get token from BTP
+	return ""
 }

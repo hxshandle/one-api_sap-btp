@@ -71,9 +71,13 @@ func testChannel(channel *model.Channel, request openai.ChatRequest) (err error,
 	if err != nil {
 		return err, nil
 	}
-	if channel.Type == common.ChannelTypeAzure {
+	switch channel.Type {
+	case common.ChannelTypeAzure:
 		req.Header.Set("api-key", channel.Key)
-	} else {
+	case common.ChannelTypeSAPBTP:
+		// TODO need get token from SAP BTP
+		req.Header.Set("Authorization", "Bearer "+channel.Key)
+	default:
 		req.Header.Set("Authorization", "Bearer "+channel.Key)
 	}
 	req.Header.Set("Content-Type", "application/json")
