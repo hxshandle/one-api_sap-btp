@@ -144,8 +144,8 @@ const typeConfig = {
       other: "SAP BTP 配置JSON",
     },
     input: {
-      models: [],
-      key: "SAP_BTP_CONFIG_KEY",
+      models: ["gpt-35-turbo","gpt-4", "gpt-4-32k"],
+      key: "default_key"
     },
     prompt: {
       other: "SAP BTP 的配置文件",

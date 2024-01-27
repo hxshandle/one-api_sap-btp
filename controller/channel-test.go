@@ -45,17 +45,22 @@ func testChannel(channel *model.Channel, request openai.ChatRequest) (err error,
 				err = errors.New("请确保已在 Azure 上创建了 gpt-35-turbo 模型，并且 apiVersion 已正确填写！")
 			}
 		}()
+	case common.ChannelTypeSAPBTP:
+		request.Model = "gpt-35-turbo"
 	default:
 		request.Model = "gpt-3.5-turbo"
 	}
 	requestURL := common.ChannelBaseURLs[channel.Type]
-	if channel.Type == common.ChannelTypeAzure {
+
+	switch channel.Type {
+	case common.ChannelTypeAzure:
 		requestURL = util.GetFullRequestURL(channel.GetBaseURL(), fmt.Sprintf("/openai/deployments/%s/chat/completions?api-version=2023-03-15-preview", request.Model), channel.Type)
-	} else {
+	case common.ChannelTypeSAPBTP:
+		requestURL = util.GetSAPBTPFullRequestURL(channel, "/api/v1/completions")
+	default:
 		if baseURL := channel.GetBaseURL(); len(baseURL) > 0 {
 			requestURL = baseURL
 		}
-
 		requestURL = util.GetFullRequestURL(requestURL, "/v1/chat/completions", channel.Type)
 	}
 	jsonData, err := json.Marshal(request)

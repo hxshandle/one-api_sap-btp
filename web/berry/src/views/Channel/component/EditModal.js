@@ -30,6 +30,7 @@ import { defaultConfig, typeConfig } from "../type/Config"; //typeConfig
 import { createFilterOptions } from "@mui/material/Autocomplete";
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
+import { v4 } from "uuid"
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
@@ -108,6 +109,14 @@ const EditModal = ({ open, channelId, onCancel, onOk }) => {
       });
     } else {
       setInputPrompt(defaultConfig.prompt);
+    }
+    if (typeValue === 25) {
+      // 这里需要随机生成key
+      let cfg = {
+        ...typeConfig[typeValue]?.input,
+        key: v4()
+      }
+      return cfg
     }
 
     return typeConfig[typeValue]?.input;
