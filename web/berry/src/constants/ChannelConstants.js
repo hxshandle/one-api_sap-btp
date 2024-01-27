@@ -17,6 +17,12 @@ export const CHANNEL_OPTIONS = {
     value: 3,
     color: 'orange'
   },
+  25: {
+    key: 25,
+    text: 'SAP BTP - Azure OpenAI',
+    value: 25,
+    color: 'orange'
+  },
   11: {
     key: 11,
     text: 'Google PaLM2',

@@ -139,6 +139,19 @@ const typeConfig = {
     },
     modelGroup: "google gemini",
   },
+  25: {
+    inputLabel: {
+      other: "SAP BTP 配置JSON",
+    },
+    input: {
+      models: [],
+      key: "SAP_BTP_CONFIG_KEY",
+    },
+    prompt: {
+      other: "SAP BTP 的配置文件",
+    },
+    modelGroup: "openai",
+  },
 };
 
 export { defaultConfig, typeConfig };

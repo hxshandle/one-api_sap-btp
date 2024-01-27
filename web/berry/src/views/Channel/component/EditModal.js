@@ -43,7 +43,18 @@ const validationSchema = Yup.object().shape({
     is: false,
     then: Yup.string().required("密钥 不能为空"),
   }),
-  other: Yup.string(),
+  other: Yup.string().when('type', {
+    is: 25,
+    then: Yup.string().required('必填').test('isJSON', '必须是一个有效的JSON字符串', value => {
+      try {
+        JSON.parse(value);
+        return true;
+      } catch {
+        return false;
+      }
+    }),
+    otherwise: Yup.string()
+  }),
   models: Yup.array().min(1, "模型 不能为空"),
   groups: Yup.array().min(1, "用户组 不能为空"),
   base_url: Yup.string().when("type", {
@@ -391,6 +402,8 @@ const EditModal = ({ open, channelId, onCancel, onOk }) => {
                 )}
               </FormControl>
 
+              {/* 开始：渠道地址 */}
+              {values.type !== 25 && (
               <FormControl
                 fullWidth
                 error={Boolean(touched.base_url && errors.base_url)}
@@ -421,8 +434,11 @@ const EditModal = ({ open, channelId, onCancel, onOk }) => {
                   </FormHelperText>
                 )}
               </FormControl>
+              )}
+              {/* 结束：渠道地址 */}
 
-              {inputPrompt.other && (
+              {/* 开始： 其他配置 */}
+              {inputPrompt.other && values.type !== 25 && (
                 <FormControl
                   fullWidth
                   error={Boolean(touched.other && errors.other)}
@@ -454,6 +470,43 @@ const EditModal = ({ open, channelId, onCancel, onOk }) => {
                   )}
                 </FormControl>
               )}
+              {/* 结束： 其他配置 */}
+              
+              {/* 开始：SAP BTP 配置 */}
+              {
+                values.type === 25 && (
+                  <FormControl
+                  fullWidth
+                  error={Boolean(touched.other && errors.other)}
+                  sx={{ ...theme.typography.otherInput }}
+                >
+                  <TextField
+                    multiline
+                    minRows={10}
+                    id="channel-other-label"
+                    label={inputLabel.other}
+                    value={values.other}
+                    name="other"
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                    aria-describedby="helper-text-channel-other-label"
+                    placeholder={inputPrompt.other}
+                  />
+                  {touched.other && errors.other ? (
+                    <FormHelperText error id="helper-tex-channel-other-label">
+                      {errors.other}
+                    </FormHelperText>
+                  ) : (
+                    <FormHelperText id="helper-tex-channel-other-label">
+                      {" "}
+                      {inputPrompt.other}{" "}
+                    </FormHelperText>
+                  )}
+                </FormControl>
+                    
+                )
+              }
+              {/* 结束：SAP BTP 配置 */}
 
               <FormControl fullWidth sx={{ ...theme.typography.otherInput }}>
                 <Autocomplete
@@ -592,6 +645,9 @@ const EditModal = ({ open, channelId, onCancel, onOk }) => {
                   </Button>
                 </ButtonGroup>
               </Container>
+
+              {/* 开始：秘钥 */}
+              {values.type !== 25 && ( // SAP BTP 不需要秘钥}
               <FormControl
                 fullWidth
                 error={Boolean(touched.key && errors.key)}
@@ -622,6 +678,10 @@ const EditModal = ({ open, channelId, onCancel, onOk }) => {
                   </FormHelperText>
                 )}
               </FormControl>
+              )}
+              {/* 结束：秘钥 */}
+
+
               <FormControl
                 fullWidth
                 error={Boolean(touched.model_mapping && errors.model_mapping)}
