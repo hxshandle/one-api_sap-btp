@@ -150,7 +150,7 @@ const typeConfig = {
     prompt: {
       other: "SAP BTP 的配置文件",
     },
-    modelGroup: "openai",
+    modelGroup: "sap",
   },
 };
 

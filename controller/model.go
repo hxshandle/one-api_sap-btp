@@ -2,8 +2,9 @@ package controller
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"one-api/relay/channel/openai"
+
+	"github.com/gin-gonic/gin"
 )
 
 // https://platform.openai.com/docs/api-reference/models/list
@@ -592,6 +593,42 @@ func init() {
 			OwnedBy:    "tencent",
 			Permission: permission,
 			Root:       "hunyuan",
+			Parent:     nil,
+		},
+		{
+			Id:         "gpt-35-turbo",
+			Object:     "model",
+			Created:    1677649963,
+			OwnedBy:    "sap",
+			Permission: permission,
+			Root:       "gpt-35-turbo",
+			Parent:     nil,
+		},
+		{
+			Id:         "gpt-4",
+			Object:     "model",
+			Created:    1677649963,
+			OwnedBy:    "sap",
+			Permission: permission,
+			Root:       "gpt-4",
+			Parent:     nil,
+		},
+		{
+			Id:         "gpt-4-32k",
+			Object:     "model",
+			Created:    1677649963,
+			OwnedBy:    "sap",
+			Permission: permission,
+			Root:       "gpt-4-32k",
+			Parent:     nil,
+		},
+		{
+			Id:         "gpt-4-turbo",
+			Object:     "model",
+			Created:    1677649963,
+			OwnedBy:    "sap",
+			Permission: permission,
+			Root:       "gpt-4-turbo",
 			Parent:     nil,
 		},
 	}
