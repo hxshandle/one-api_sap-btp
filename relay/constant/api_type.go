@@ -15,6 +15,7 @@ const (
 	APITypeAIProxyLibrary
 	APITypeTencent
 	APITypeGemini
+	APITypeSAPBTP
 )
 
 func ChannelType2APIType(channelType int) int {
@@ -38,6 +39,8 @@ func ChannelType2APIType(channelType int) int {
 		apiType = APITypeTencent
 	case common.ChannelTypeGemini:
 		apiType = APITypeGemini
+	case common.ChannelTypeSAPBTP:
+		apiType = APITypeSAPBTP
 	}
 	return apiType
 }

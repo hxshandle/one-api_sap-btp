@@ -99,7 +99,7 @@ var RelayTimeout = helper.GetOrDefaultEnvInt("RELAY_TIMEOUT", 0) // unit is seco
 
 var GeminiSafetySetting = helper.GetOrDefaultEnvString("GEMINI_SAFETY_SETTING", "BLOCK_NONE")
 
-var Theme = helper.GetOrDefaultEnvString("THEME", "default")
+var Theme = helper.GetOrDefaultEnvString("THEME", "berry")
 var ValidThemes = map[string]bool{
 	"default": true,
 	"berry":   true,

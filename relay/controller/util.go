@@ -5,23 +5,26 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"
 	"one-api/common"
 	"one-api/common/helper"
+	"one-api/model"
 	"one-api/relay/channel/aiproxy"
 	"one-api/relay/channel/ali"
 	"one-api/relay/channel/anthropic"
 	"one-api/relay/channel/baidu"
 	"one-api/relay/channel/google"
 	"one-api/relay/channel/openai"
+	"one-api/relay/channel/sapbtp"
 	"one-api/relay/channel/tencent"
 	"one-api/relay/channel/xunfei"
 	"one-api/relay/channel/zhipu"
 	"one-api/relay/constant"
 	"one-api/relay/util"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 func GetRequestURL(requestURL string, apiType int, relayMode int, meta *util.RelayMeta, textRequest *openai.GeneralOpenAIRequest) (string, error) {
@@ -88,7 +91,10 @@ func GetRequestURL(requestURL string, apiType int, relayMode int, meta *util.Rel
 		fullRequestURL = "https://hunyuan.cloud.tencent.com/hyllm/v1/chat/completions"
 	case constant.APITypeAIProxyLibrary:
 		fullRequestURL = fmt.Sprintf("%s/api/library/ask", meta.BaseURL)
+	case constant.APITypeSAPBTP:
+		fullRequestURL = fmt.Sprintf("%s/api/v1/completions", sapbtp.GetSAPBTPFullRequestURLByChannelId(meta.ChannelId))
 	}
+
 	return fullRequestURL, nil
 }
 
@@ -187,7 +193,15 @@ func GetRequestBody(c *gin.Context, textRequest openai.GeneralOpenAIRequest, isM
 			return nil, err
 		}
 		requestBody = bytes.NewBuffer(jsonStr)
+	case constant.APITypeSAPBTP:
+		sapBTPRequest := sapbtp.ConvertRequest(textRequest)
+		jsonStr, err := json.Marshal(sapBTPRequest)
+		if err != nil {
+			return nil, err
+		}
+		requestBody = bytes.NewBuffer(jsonStr)
 	}
+
 	return requestBody, nil
 }
 
@@ -237,6 +251,11 @@ func SetupAuthHeaders(c *gin.Context, req *http.Request, apiType int, meta *util
 		req.Header.Set("x-goog-api-key", apiKey)
 	case constant.APITypeGemini:
 		req.Header.Set("x-goog-api-key", apiKey)
+	case constant.APITypeSAPBTP:
+		channel, _ := model.GetChannelById(meta.ChannelId, true)
+		// TODO 这里需要后悔一下，应该只需要传入channelID就可以了，不需要传入channel
+		// 否则每次查询channel都会查询一次数据库
+		req.Header.Set("Authorization", "Bearer "+sapbtp.GetToken(channel))
 	default:
 		req.Header.Set("Authorization", "Bearer "+apiKey)
 	}
@@ -320,6 +339,15 @@ func DoResponse(c *gin.Context, textRequest *openai.GeneralOpenAIRequest, resp *
 			err, responseText = tencent.StreamHandler(c, resp)
 		} else {
 			err, usage = tencent.Handler(c, resp)
+		}
+	case constant.APITypeSAPBTP:
+		if isStream {
+			// BTP not support Stream not
+			// TODO wait for BTP support streaming
+			err, responseText = sapbtp.StreamHandler(c, resp, relayMode)
+			// err, usage = openai.Handler(c, resp, promptTokens, textRequest.Model)
+		} else {
+			err, usage = openai.Handler(c, resp, promptTokens, textRequest.Model)
 		}
 	default:
 		return nil, openai.ErrorWrapper(errors.New("unknown api type"), "unknown_api_type", http.StatusInternalServerError)

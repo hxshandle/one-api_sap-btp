@@ -12,6 +12,7 @@ import (
 	"one-api/common/logger"
 	"one-api/model"
 	"one-api/relay/channel/openai"
+	"one-api/relay/channel/sapbtp"
 	"one-api/relay/util"
 	"strconv"
 	"sync"
@@ -67,6 +68,19 @@ func testChannel(channel *model.Channel, request openai.ChatRequest) (err error,
 	if err != nil {
 		return err, nil
 	}
+	if channel.Type == common.ChannelTypeSAPBTP {
+		// convert openai.ChatRequest to sapbtp.ChatRequest
+		sapbtpRequest := sapbtp.ChatRequest{
+			DeploymentID: request.Model,
+			MaxTokens:    request.MaxTokens,
+			Messages:     request.Messages,
+		}
+		jsonData, err = json.Marshal(sapbtpRequest)
+		if err != nil {
+			logger.FatalLog(err.Error())
+			return err, nil
+		}
+	}
 	req, err := http.NewRequest("POST", requestURL, bytes.NewBuffer(jsonData))
 	if err != nil {
 		return err, nil
@@ -75,8 +89,7 @@ func testChannel(channel *model.Channel, request openai.ChatRequest) (err error,
 	case common.ChannelTypeAzure:
 		req.Header.Set("api-key", channel.Key)
 	case common.ChannelTypeSAPBTP:
-		// TODO need get token from SAP BTP
-		req.Header.Set("Authorization", "Bearer "+channel.Key)
+		req.Header.Set("Authorization", "Bearer "+sapbtp.GetToken(channel))
 	default:
 		req.Header.Set("Authorization", "Bearer "+channel.Key)
 	}

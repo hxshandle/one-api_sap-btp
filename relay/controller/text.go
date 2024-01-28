@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"math"
 	"net/http"
 	"one-api/common"
@@ -15,6 +14,8 @@ import (
 	"one-api/relay/constant"
 	"one-api/relay/util"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 func RelayTextHelper(c *gin.Context, relayMode int) *openai.ErrorWithStatusCode {
@@ -25,6 +26,7 @@ func RelayTextHelper(c *gin.Context, relayMode int) *openai.ErrorWithStatusCode 
 	if err != nil {
 		return openai.ErrorWrapper(err, "bind_request_body_failed", http.StatusBadRequest)
 	}
+
 	if relayMode == constant.RelayModeModerations && textRequest.Model == "" {
 		textRequest.Model = "text-moderation-latest"
 	}
@@ -37,6 +39,7 @@ func RelayTextHelper(c *gin.Context, relayMode int) *openai.ErrorWithStatusCode 
 	}
 	var isModelMapped bool
 	textRequest.Model, isModelMapped = util.GetMappedModelName(textRequest.Model, meta.ModelMapping)
+
 	apiType := constant.ChannelType2APIType(meta.ChannelType)
 	fullRequestURL, err := GetRequestURL(c.Request.URL.String(), apiType, relayMode, meta, &textRequest)
 	if err != nil {
@@ -113,6 +116,7 @@ func RelayTextHelper(c *gin.Context, relayMode int) *openai.ErrorWithStatusCode 
 		isStream = isStream || strings.HasPrefix(resp.Header.Get("Content-Type"), "text/event-stream")
 
 		if resp.StatusCode != http.StatusOK {
+
 			util.ReturnPreConsumedQuota(ctx, preConsumedQuota, meta.TokenId)
 			return util.RelayErrorHandler(resp)
 		}

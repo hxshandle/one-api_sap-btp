@@ -138,12 +138,9 @@ func GetFullRequestURL(baseURL string, requestURL string, channelType int) strin
 }
 
 func GetSAPBTPFullRequestURL(channel *model.Channel, requestURL string) string {
+
+	sapbtpConfig := sapbtp.GetSAPBTPConfig(channel)
 	// 这里将channel.Other从String转换成SAPBTPConfiguration对象
-	var sapbtpConfig sapbtp.SAPBTPConfiguration
-	err := json.Unmarshal([]byte(channel.Other), &sapbtpConfig)
-	if err != nil {
-		logger.SysError(fmt.Sprintf("failed to unmarshal sapbtp config for channel %d, error: %s", channel.Id, err.Error()))
-	}
 	baseURL := sapbtpConfig.URL
 	fullRequestURL := fmt.Sprintf("%s%s", baseURL, requestURL)
 	return fullRequestURL
